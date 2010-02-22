@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ToggleButtonBar xmlns:mx="http://www.adobe.com/2006/mxml" 
+                              labelFunction="setBreadCrumbsLabel"
+                              dataProvider="{myBreadCrumbs}"
+							  itemClick="clickToggle();">
+	<mx:Script>
+		<![CDATA[
+
+		import flash.events.Event;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import jp.co.ziro.flex.events.BreadCrumbsEvent;
+
+		//対象の階層データ
+		private var myBreadCrumbsXML:XML;
+	
+		/**
+		 * 現在のデータの取得
+		 */	
+		public function get breadCrumbsXML():XML {
+			return myBreadCrumbsXML;
+		}
+		
+		/**
+		 * 階層データの設定
+		 */
+		public function set breadCrumbsXML(breadCrumbsXML:XML):void {
+			myBreadCrumbsXML = breadCrumbsXML;
+		}
+		
+
+		[Bindable]
+		private var myBreadCrumbs:ArrayCollection;
+
+		/**
+		 * パンクズの作成
+		 */
+		public function createBreadCrumbs(aId:String):void {
+
+			//対象データを新規に作成する
+			myBreadCrumbs = new ArrayCollection();
+			//選択したいデータを探す
+			var wkXML:XML = findData(new XML(myBreadCrumbsXML), aId);			
+
+			//データが無くなるまで続ける
+			while ( wkXML != null ) {
+				//ArrayCollection用にオブジェクトを生成	
+				var obj:Object = new Object();
+				obj.id = wkXML.attribute("id");
+				obj.label = wkXML.attribute("label");
+				
+				//前に設定する
+				myBreadCrumbs.addItemAt(obj, 0);
+				//親を取得
+				wkXML = wkXML.parent();
+			}
+			//一番下を選択状態にする
+			this.selectedIndex = myBreadCrumbs.length - 1;
+			return;
+		}
+
+		/**
+		 * 階層データの検索
+		 */
+		private function findData(aXML:XML, aId:String):XML {
+			
+			var wkId:String = aXML.attribute("id");
+			if ( wkId == aId ) {
+				return aXML;
+			}
+
+			var wkList:XMLList = aXML.children();
+			if ( wkList == null ) {
+				return null;
+			}
+
+			for ( var cnt:Number = 0; cnt < wkList.length(); ++cnt ) {
+
+				var wkXML:XML = wkList[cnt];
+				var rtnXML:XML = findData(wkXML, aId);
+				if ( rtnXML != null ) return rtnXML;
+			}
+			return null;
+		}
+
+		/**
+		 * トグルをクリックした場合
+		 */
+		private function clickToggle():void {
+			
+			//選択したオブジェクトの取得
+			var dataObj:Object = myBreadCrumbs.getItemAt(this.selectedIndex);
+			//オブジェクトからIDを取得
+			var targetId:String = dataObj.id;
+			//新規にコントロールを編集
+			createBreadCrumbs(targetId);
+			//変更イベントを生成
+		    var event:BreadCrumbsEvent = 
+					new BreadCrumbsEvent("change",findData(myBreadCrumbsXML,targetId));			
+			//イベントの割り当てを行う
+			dispatchEvent(event);
+		}
+
+		/**
+		 * 表示ラベルを編集する
+		 */
+		private function setBreadCrumbsLabel(item :Object) :String {
+			return item.label;
+		}
+		]]>
+    </mx:Script>
+  
+	<!-- イベントを作成 -->
+	<mx:Metadata>
+		[Event(name="change", type="bz.ziro.flex.events.BreadCrumbsEvent")]
+	</mx:Metadata>
+
+</mx:ToggleButtonBar>

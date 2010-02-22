@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" 
+	            layout="absolute"
+  				showCloseButton="true"
+  				mouseDown="onThis_mouseDown(event);"
+  				mouseMove="onThis_mouseMove(event);"
+  				mouseUp="onThis_mouseUp(event);"
+  				close="onThis_close();"
+  				creationComplete="onThis_creationComplete();">
+	<mx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.core.Application;
+		import mx.managers.PopUpManager;
+		
+		private const SIZE_DRAGAREA:int = 10;
+		private const SIZE_MIN_WIDTH:int = 50;
+		private const SIZE_MIN_HEIGHT:int = 50;
+		
+		private var blDragTop:Boolean = false;
+		private var blDragRight:Boolean = false;
+		private var blDragBottom:Boolean = false;
+		private var blDragLeft:Boolean = false;
+		private var iDragPosHeight:int = 0;
+		private var iDragPosWidth:int = 0;
+	
+		private function onThis_creationComplete():void {
+			Application.application.parent.addEventListener(MouseEvent.MOUSE_UP, onParent_mouseUp);
+			Application.application.parent.addEventListener(MouseEvent.MOUSE_MOVE, onParent_mouseMove);
+		}
+
+		private function onThis_mouseDown(event:MouseEvent):void {
+			
+			if ( event.target != this ) {
+				return;
+			}
+			
+		
+			if( event.localY < SIZE_DRAGAREA ) {
+				blDragTop = true;
+				iDragPosHeight = event.localY;
+			}
+			
+			if( this.width - SIZE_DRAGAREA < event.localX )
+			{
+				blDragRight = true;
+				iDragPosWidth = this.width - event.localX;
+			}
+			
+			if( this.height - SIZE_DRAGAREA < event.localY )
+			{
+				blDragBottom = true;
+				iDragPosHeight = this.height - event.localY;
+			}
+			if( event.localX < SIZE_DRAGAREA )
+			{
+				blDragLeft = true;
+				iDragPosWidth = event.localX;
+			}
+		}
+		
+		private function onParent_mouseMove(event:MouseEvent):void
+		{
+			doDrag(event.stageX, event.stageY);
+		}
+		
+		private function onThis_mouseMove(event:MouseEvent):void
+		{
+			doDrag(event.stageX, event.stageY);
+		}
+		
+		private function onParent_mouseUp(event:MouseEvent):void
+		{
+			outDragMode();
+		}
+		
+		private function onThis_mouseUp(event:MouseEvent):void
+		{
+			outDragMode();
+		}
+		
+		private function onThis_close():void
+		{
+			PopUpManager.removePopUp(this);
+		}
+		
+		private function doDrag(intX:int, intY:int):void {
+			
+			if( blDragTop ) {
+				if( this.y + this.height - intY + iDragPosHeight > SIZE_MIN_HEIGHT ) {
+					this.height = this.y + this.height - intY + iDragPosHeight;
+					this.y = intY - iDragPosHeight;
+				} else {
+					this.y = this.y + this.height - SIZE_MIN_HEIGHT;
+					this.height = SIZE_MIN_HEIGHT;
+				}
+			}
+			
+			if( blDragRight ) {
+				if( intX - this.x + iDragPosWidth > SIZE_MIN_WIDTH ) {
+					this.width = intX - this.x + iDragPosWidth;
+				} else {
+					this.width = SIZE_MIN_WIDTH;
+				}
+			}
+			
+			if( blDragBottom ) {
+				if( intY - this.y + iDragPosHeight > SIZE_MIN_HEIGHT ) {
+					this.height = intY - this.y + iDragPosHeight;
+				} else {
+					this.height = SIZE_MIN_HEIGHT;
+				}
+			}
+			
+			if( blDragLeft ) {
+				if( this.x + this.width - intX + iDragPosWidth > SIZE_MIN_WIDTH ) {
+					this.width = this.x + this.width - intX + iDragPosWidth;
+					this.x = intX - iDragPosWidth;
+				} else {
+					this.x = this.x + this.width - SIZE_MIN_WIDTH;
+					this.width = SIZE_MIN_WIDTH;
+				}
+			}
+		}
+		
+		private function outDragMode():void {
+			blDragTop = blDragRight = blDragBottom = blDragLeft = false;
+		}
+		]]>
+	</mx:Script>
+  
+</mx:TitleWindow>

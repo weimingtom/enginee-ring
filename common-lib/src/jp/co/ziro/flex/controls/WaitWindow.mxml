@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="436" height="148" title="少々お待ちください">
+<mx:Script>
+	<![CDATA[
+        import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+        import jp.co.ziro.flex.events.WaitEvent;
+        
+        private var myLabel:String = "";
+        private var myValue:Number = 0;
+        private var myTotal:Number = 0;
+ 
+		public function setLabel(aLabelText:String):void {
+			myLabel = aLabelText;
+			callLater(setTitle);
+		}
+
+		public function setProgress(aValue:Number,aTotal:Number):void {
+			progressBar.setProgress(aValue,aTotal);
+		}
+
+		private function cancelEvent():void{
+			//イベントを発生させる
+			var event:WaitEvent = new WaitEvent(WaitEvent.CANCEL);
+			dispatchEvent( event );	
+		}
+
+		private function setTitle():void {
+			displayLabel.text = myLabel;
+		}
+	]]>
+</mx:Script>
+
+	<mx:ProgressBar x="10" y="36" width="396" id="progressBar" label="Complated %3%%" mode="manual"/>
+	<mx:Label x="10" y="10" text="表示ラベル" id="displayLabel"/>
+	<mx:Button x="10" y="72" label="キャンセル" width="396" click="cancelEvent();"/>
+	
+</mx:TitleWindow>
