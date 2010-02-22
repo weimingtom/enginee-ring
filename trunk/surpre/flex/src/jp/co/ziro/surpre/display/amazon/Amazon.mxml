@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 creationComplete="init()" >
+
+	<mx:Script>
+		<![CDATA[
+		import jp.co.ziro.surpre.event.PanelEvent;
+		import jp.co.ziro.surpre.display.ItemType;
+		import jp.co.ziro.surpre.Globals;
+		import mx.controls.Alert;
+
+		//初期化
+		private function init():void {
+			searchService.url = Globals.getDomain() + "rest/amazon/searchKeyword";
+			searchWord.setFocus();
+		}
+	
+		//リストの変更	
+		private function searchKeyword():void {
+			searchService.send();
+		}
+
+		/**
+		 * クリックした場合
+		 */
+		private function updateSearchTile():void {
+			//変更イベントを生成
+		    var event:PanelEvent = new PanelEvent("submit",searchService.lastResult as XML,ItemType.AMAZON,-1);			
+			//イベントの割り当てを行う
+			dispatchEvent(event);
+		}
+		]]>
+	</mx:Script>
+
+	<mx:Metadata>
+		[Event(name="submit", type="jp.co.ziro.surpre.event.PanelEvent")]
+	</mx:Metadata>
+	
+    <mx:HTTPService id="searchService" showBusyCursor="true" method="POST" resultFormat="e4x" result="updateSearchTile();">	
+      <mx:request>
+        <searchIndex>
+        {searchIndex.selectedItem.index}
+        </searchIndex>
+        <keyword>
+        {searchWord.text}
+        </keyword>
+      </mx:request>
+    </mx:HTTPService>
+
+	<mx:ArrayCollection id="searchIndexCollection">
+		<mx:Object label="全て" index="All"/>
+		<mx:Object label="本(和書)" index="Books"/>
+		<mx:Object label="洋書" index="ForeignBooks"/>
+		<mx:Object label="ソフトウェア" index="Software"/>
+		<mx:Object label="ミュージック" index="Music"/>
+		<mx:Object label="曲名" index="MusicTracks"/>
+		<mx:Object label="クラシック音楽" index="Classical"/>
+		<mx:Object label="DVD" index="DVD"/>
+		<mx:Object label="VHS" index="VHS"/>
+		<mx:Object label="エレクトロニクス" index="Electronics"/>
+		<mx:Object label="ビデオ" index="Video"/>
+		<mx:Object label="ゲーム" index="VideoGames"/>
+		<mx:Object label="スポーツ＆アウトドア" index="SportingGoods"/>
+		<mx:Object label="おもちゃ" index="Toys"/>
+		<mx:Object label="ベビー＆マタニティ" index="Baby"/>
+		<mx:Object label="ホビー" index="Hobbies"/>
+		<mx:Object label="食品" id="Grocery"/>
+		<mx:Object label="ホーム＆キッチン" index="Kitchen"/>
+		<mx:Object label="ヘルスケア" index="HealthPersonalCare"/>
+		<mx:Object label="アパレル" index="Apparel"/>
+		<mx:Object label="ジュエリー" index="Jewelry"/>
+		<mx:Object label="コスメ" index="Beauty"/>
+		<mx:Object label="時計" index="Watches"/>
+		<mx:Object label="全て" index="Blended"/>
+		
+	</mx:ArrayCollection>
+
+	<mx:HBox horizontalAlign="center" verticalAlign="middle" width="100%" height="100%">	
+		<mx:ComboBox height="30" fontSize="18" maxWidth="100" id="searchIndex" dataProvider="{searchIndexCollection}" labelField="label"></mx:ComboBox>
+		<mx:TextInput id="searchWord" width="200" height="30" fontSize="18" enter="searchKeyword();"/>
+		<mx:Button click="searchKeyword();" height="30" label="検索" fontSize="18" />
+	</mx:HBox>	
+		
+</mx:VBox>

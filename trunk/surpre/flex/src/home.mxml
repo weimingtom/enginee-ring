@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+				xmlns:display="jp.co.ziro.surpre.display.*"
+				layout="absolute"
+				creationComplete="init()">
+	
+	<mx:Style source="/css/base.css" />			
+	<mx:Script>
+		<![CDATA[
+		import mx.controls.Alert;
+		import mx.collections.ArrayCollection;
+    	import mx.managers.PopUpManager;
+		import jp.co.ziro.surpre.event.TileEvent;
+		import jp.co.ziro.surpre.event.PanelEvent;
+		import jp.co.ziro.surpre.display.ItemType;
+		import jp.co.ziro.surpre.Globals;
+		import mx.controls.Alert;
+		
+		private var tiles:ArrayCollection = new ArrayCollection();
+		private var changeXml:XML;
+		
+		[Bindable]
+		private var surpreDataXml:XML;
+
+		//初期化
+		private function init():void {
+
+			//初回アクセス用のデータ取得処理
+			supreDataService.url = Globals.getDomain() + "rest/getSurpreData";
+			supreDataService.send();
+
+			tiles.addItem(tile1);
+			tiles.addItem(tile2);
+			tiles.addItem(tile3);
+			tiles.addItem(tile4);
+			tiles.addItem(tile5);
+			tiles.addItem(tile6);
+			tiles.addItem(tile7);
+			tiles.addItem(tile8);
+			tiles.addItem(tile9);
+			tiles.addItem(tile10);
+		}
+
+		//サブミット処理	
+		private function submitPanel(event:PanelEvent):void {
+			changeXml = event.getRest();
+
+			var tileEvent:TileEvent = new TileEvent("change",event.getItemType(),event.getIndex());
+			changeTile(tileEvent);
+		}
+
+		//通常用のタイルの生成
+		private function changeTile(event:TileEvent):void {
+			
+			if ( event.getType() == ItemType.TWITTER_FOLLOWER && event.getIndex() != 4 ) {
+				return;
+			}
+			if ( event.getType() == ItemType.TWITTER_CM && event.getIndex() != 3 ) {
+				return;
+			}
+
+			//次のインデックスへ
+			var idx:Number = event.getIndex() + 1;
+			if ( idx < 10 ) {
+				var tile:Tile = tiles[idx];
+				tile.changeItem(changeXml,event.getType());
+			}
+		}
+
+		//データ取得後
+		private function dataResult():void {
+			surpreDataXml = supreDataService.lastResult as XML;
+		}
+		]]>
+	</mx:Script>
+
+    <mx:HTTPService id="supreDataService" showBusyCursor="true" method="POST" resultFormat="e4x" result="dataResult();"/>	
+   
+	<mx:VBox width="100%" height="100%" verticalAlign="middle" horizontalAlign="center" verticalGap="3">
+	
+		<mx:HBox horizontalGap="3">
+			<display:Tile id="tile1"  index="0" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile2"  index="1" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile3"  index="2" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile4"  index="3" change="changeTile(event)" reply="panel.addReply(event);"/>
+		</mx:HBox>
+		<mx:HBox horizontalGap="3">
+			<display:Tile  id="tile5" index="4" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Panel id="panel" submit="submitPanel(event);" xmlData="{surpreDataXml}"/>
+			<display:Tile  id="tile6" index="5" change="changeTile(event)" reply="panel.addReply(event);"/>
+		</mx:HBox>
+		<mx:HBox horizontalGap="3">
+			<display:Tile id="tile7"  index="6" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile8"  index="7" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile9"  index="8" change="changeTile(event)" reply="panel.addReply(event);"/>
+			<display:Tile id="tile10" index="9" change="changeTile(event)" reply="panel.addReply(event);"/>
+		</mx:HBox>
+		
+	</mx:VBox>
+
+</mx:Application>

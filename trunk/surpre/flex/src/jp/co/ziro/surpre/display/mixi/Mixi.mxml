@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 show="init()" >
+
+	<mx:Script>
+		<![CDATA[
+		import jp.co.ziro.surpre.event.PanelEvent;
+		import jp.co.ziro.surpre.Globals;
+		import jp.co.ziro.surpre.display.ItemType;
+		import mx.controls.Alert;
+
+		private var _registM:Boolean;	
+		private var _registW:Boolean;	
+		//mixi登録有無
+		public function set registM(value:Boolean):void {
+			_registM = value;
+		}
+		//アマゾン登録有無
+		public function set registW(value:Boolean):void {
+			_registW = value;
+		}
+
+
+		//初期化
+		private function init():void {
+			friendService.url = Globals.getDomain() + "rest/mixi/getFriendList";
+			wishService.url   = Globals.getDomain() + "rest/amazon/getWishItem";
+
+			listIdService.url = Globals.getDomain() + "rest/amazon/searchWishListId";
+			listService.url   = Globals.getDomain() + "rest/amazon/searchWishList";
+			registService.url = Globals.getDomain() + "rest/amazon/registWishList";
+
+			if ( _registM ) {
+				friendService.send();
+			}
+		}
+	
+		//
+		private function friendHandler():void {
+			var xml:XML = friendService.lastResult as XML;
+			if ( xml.@status == "401" ) {
+				Alert.show("mixiアプリを起動してください。");
+			}
+		}
+
+		//ほしいもの検索	
+		private function wish():void {
+			wishService.send();
+		}
+		
+		//ほしいものリスト取得	
+		private function wishHandler():void {
+			//変更イベントを生成
+		    var event:PanelEvent = new PanelEvent("submit",wishService.lastResult as XML,ItemType.AMAZON,-1);
+			//イベントの割り当てを行う
+			dispatchEvent(event);
+		}
+	
+		//アプリの起動
+		private function apply():void {
+			var request:URLRequest = new URLRequest();
+			request.url = "http://mixi.jp/run_appli.pl?id=17138";
+			request.method = URLRequestMethod.GET;
+			navigateToURL(request,"_self");
+		}
+
+		/**
+		 * クリックした場合
+		 */
+		private function registWishListId():void {
+			if ( wishListId.selectedIndex == -1 ) return;
+			registService.send();
+		}
+		/**
+		 * クリックした場合
+		 */
+		private function updateWishTile():void {
+			//変更イベントを生成
+		    var event:PanelEvent = new PanelEvent("submit",listService.lastResult as XML,ItemType.AMAZON,-1);			
+			//イベントの割り当てを行う
+			dispatchEvent(event);
+		}
+		//検索	
+		private function searchWishList():void {
+			listIdService.send();
+		}
+
+		//リストの変更	
+		private function changeList():void {
+			listService.send();
+		}
+		
+		private function ownList():void {
+			listService.send();	
+		}
+		]]>
+	</mx:Script>
+
+	<!-- マイミク -->
+    <mx:HTTPService id="friendService" showBusyCursor="true" method="POST" resultFormat="e4x" result="friendHandler()" />	
+
+	<!-- 指定の人のほしいもの -->
+    <mx:HTTPService id="wishService"   showBusyCursor="true" method="POST" resultFormat="e4x" result="wishHandler()">
+      <mx:request>
+        <mixiId>{friendGrid.selectedItem.@userId}</mixiId>
+      </mx:request>
+    </mx:HTTPService>
+    
+	<!-- ID検索 -->
+    <mx:HTTPService id="listIdService" showBusyCursor="true" method="POST" resultFormat="e4x" result="changeList();">	
+      <mx:request>
+        <mail>
+        {mailAddress.text}
+        </mail>
+      </mx:request>
+    </mx:HTTPService>
+
+	<!-- リストを表示 -->
+    <mx:HTTPService id="listService"  showBusyCursor="true" method="POST" resultFormat="e4x" result="updateWishTile();">	
+      <mx:request>
+        <listId>
+        {wishListId.selectedItem.@id}
+        </listId>
+      </mx:request>
+    </mx:HTTPService>
+    
+	<!-- リスト登録 -->
+    <mx:HTTPService id="registService"  showBusyCursor="true" method="POST" resultFormat="e4x" >	
+      <mx:request>
+        <listId>
+        {wishListId.selectedItem.@id}
+        </listId>
+      </mx:request>
+    </mx:HTTPService>
+    
+	<mx:Metadata>
+		[Event(name="submit",type="jp.co.ziro.surpre.event.PanelEvent")]
+	</mx:Metadata>
+
+	<mx:HBox>
+		
+		<mx:VBox>	
+			<mx:DataGrid id="friendGrid" width="150" height="140" dataProvider="{friendService.lastResult.friend}" doubleClickEnabled="true" doubleClick="wish()">
+				<mx:columns>
+					<mx:DataGridColumn headerText="アプリ登録マイミク" dataField="@nickname"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<mx:Button click="apply();" width="150" label="mixiアプリ起動" />
+		</mx:VBox>	
+
+		<mx:VBox>	
+			
+			<mx:HBox>	
+				<mx:Label text="Amazon登録メールアドレス"/>
+			</mx:HBox>	
+			<mx:HBox>	
+				<mx:TextInput id="mailAddress" enter="searchWishList();"/>
+				<mx:Button click="searchWishList();" label="検索" />
+			</mx:HBox>	
+		
+			<mx:ComboBox width="150" id="wishListId" dataProvider="{listIdService.lastResult.wishList}" labelField="@name" change="changeList();" />
+			<mx:Button click="registWishListId();" label="現在の表示を自分のほしいものに登録" />
+			<mx:Button click="ownList();" label="自分のほしいものを表示" />
+		
+		</mx:VBox>	
+
+
+	</mx:HBox>
+		
+</mx:VBox>

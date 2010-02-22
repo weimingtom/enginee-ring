@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseItem xmlns="jp.co.ziro.surpre.display.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+			xmlns:twitter="jp.co.ziro.surpre.display.twitter.*">
+
+	<mx:Script>
+	
+		<![CDATA[
+
+		import jp.co.ziro.surpre.event.TimelineEvent;
+		import jp.co.ziro.surpre.Globals;
+		import mx.controls.Alert;
+		import jp.co.ziro.surpre.event.TimelineEvent;
+		
+		[Bindable]	
+		private var myXml:XML;
+
+		/**
+		 * クリックした場合
+		 */
+		public override function changeItem():void {
+			if (xmlData == null )	{
+				return;	
+			}
+			myXml = xmlData;
+			
+		}
+
+		private function reply():void {
+			//変更イベントを生成
+		    var event:TimelineEvent = new TimelineEvent("reply",followerGrid.selectedItem.@userId);
+			//イベントの割り当てを行う
+			dispatchEvent(event);	
+		}
+
+		//改行削除	
+		private function removeCRLF(data:Object, column:DataGridColumn):String {
+			var xmlData:XML = data as XML;
+			var textData:String = xmlData.text.text();
+			//改行文字CRを削除
+			var crData:String = textData.replace(/\r/g,"");
+			//改行文字LFを削除
+			var lfData:String = crData.replace(/\n/g,"");
+			return lfData;
+		}
+		]]>
+	</mx:Script>
+	<!-- イベントを作成 -->
+	<mx:Metadata>
+		[Event(name="reply", type="jp.co.ziro.surpre.event.TimelineEvent")]
+	</mx:Metadata>
+
+	<mx:DataGrid id="followerGrid" width="100%" height="100%" dataProvider="{myXml.status}" headerHeight="0" doubleClickEnabled="true" doubleClick="reply()">
+		<mx:columns>
+			<mx:DataGridColumn dataField="@image"  width="32"  itemRenderer="mx.controls.Image"/>
+			<mx:DataGridColumn dataField="@userId" width="50"/>
+			<mx:DataGridColumn dataField="text"    width="120" labelFunction="removeCRLF"/>
+		</mx:columns>
+	</mx:DataGrid>
+</BaseItem>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml"
+		 creationComplete="init()" width="100%" height="100%" horizontalAlign="center" verticalAlign="middle">
+
+	<mx:Script>
+		<![CDATA[
+		import jp.co.ziro.surpre.event.PanelEvent;
+		import jp.co.ziro.surpre.Globals;
+		import jp.co.ziro.surpre.display.ItemType;
+		import mx.controls.Alert;
+
+		//初期化
+		private function init():void {
+			searchYahooService.url   = Globals.getDomain() + "rest/yahoo/search";
+			searchPhotoService.url = Globals.getDomain() + "rest/photozo/search";
+			searchYoutubeService.url = Globals.getDomain() + "rest/youtube/search";
+		}
+	
+		//リストの変更	
+		private function searchYahoo():void {
+			searchYahooService.send();
+		}
+
+		//リストの変更	
+		private function searchPhotozo():void {
+			searchPhotoService.send();
+		}
+
+		//リストの変更	
+		private function searchYoutube():void {
+			searchYoutubeService.send();
+		}
+		/**
+		 * 戻ってきた時
+		 */
+		private function updateYahooTile():void {
+			updateTile(searchYahooService.lastResult as XML,ItemType.YAHOO);
+		}
+		
+		/**
+		 * 戻ってきた時
+		 */
+		private function updatePhotozoTile():void {
+			updateTile(searchPhotoService.lastResult as XML,ItemType.PHOTOZO);
+		}
+		
+		/**
+		 * 戻ってきた時
+		 */
+		private function updateYoutubeTile():void {
+			updateTile(searchYoutubeService.lastResult as XML,ItemType.YOUTUBE);
+		}
+
+		private function updateTile(xml:XML,itemType:String):void {
+			//変更イベントを生成
+		    var event:PanelEvent = new PanelEvent("submit",xml,itemType,-1);
+			//イベントの割り当てを行う
+			dispatchEvent(event);
+		}
+		]]>
+	</mx:Script>
+
+	<mx:Metadata>
+		[Event(name="submit", type="jp.co.ziro.surpre.event.PanelEvent")]
+	</mx:Metadata>
+	
+    <mx:HTTPService id="searchYahooService" showBusyCursor="true" method="POST" resultFormat="e4x" result="updateYahooTile();">	
+      <mx:request>
+        <keyword>
+        {searchWebWord.text}
+        </keyword>
+      </mx:request>
+    </mx:HTTPService>
+    <mx:HTTPService id="searchPhotoService" showBusyCursor="true" method="POST" resultFormat="e4x" result="updatePhotozoTile();">	
+      <mx:request>
+        <keyword>
+        {searchPhotoWord.text}
+        </keyword>
+      </mx:request>
+    </mx:HTTPService>
+    <mx:HTTPService id="searchYoutubeService" showBusyCursor="true" method="POST" resultFormat="e4x" result="updateYoutubeTile();">	
+      <mx:request>
+        <keyword>
+        {searchMovieWord.text}
+        </keyword>
+      </mx:request>
+    </mx:HTTPService>
+
+	<mx:Form>
+		<mx:FormItem label="Web">
+			<mx:HBox>
+				<mx:TextInput id="searchWebWord" width="200" height="30" fontSize="18" enter="searchYahoo();"/>
+				<mx:Button click="searchYahoo();" height="30" label="検索" fontSize="18"/>
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="写真">
+			<mx:HBox>
+				<mx:TextInput id="searchPhotoWord" width="200" height="30" fontSize="18" enter="searchPhotozo();"/>
+				<mx:Button click="searchPhotozo();" height="30" label="検索" fontSize="18" />
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="動画">
+			<mx:HBox>
+				<mx:TextInput id="searchMovieWord" width="200" height="30" fontSize="18" enter="searchYoutube();"/>
+				<mx:Button click="searchYoutube();" height="30" label="検索" fontSize="18" />
+			</mx:HBox>
+		</mx:FormItem>
+	</mx:Form>
+
+</mx:VBox>
