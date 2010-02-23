@@ -1,6 +1,9 @@
 package jp.co.ziro.surpre
 {
-	import mx.rpc.Fault;
+	import com.google.analytics.AnalyticsTracker;
+	import com.google.analytics.GATracker;
+	
+	import flash.display.DisplayObject;
 	
 	public class Globals
 	{
@@ -9,10 +12,20 @@ package jp.co.ziro.surpre
 		import mx.rpc.events.FaultEvent;
 
 		private static var gblDomain:String = null;
+		private static var tracker:AnalyticsTracker = null;
 
 		public function Globals() {
 		}
-		
+		public static function initTracker(object:DisplayObject):void {
+			if (tracker == null) {
+				tracker = new GATracker(object, "UA-51600-18", "AS3");
+			}
+		}
+		public static function viewPage(pageUrl:String):void {
+			if ( tracker == null ) return;
+			tracker.trackPageview(pageUrl);
+		}
+
 		/**
 		 * ドメインの取得
 		 */ 

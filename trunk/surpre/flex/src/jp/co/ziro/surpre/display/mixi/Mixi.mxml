@@ -23,6 +23,7 @@
 
 		//初期化
 		private function init():void {
+			Globals.viewPage("/mixi");
 			friendService.url = Globals.getDomain() + "rest/mixi/getFriendList";
 			wishService.url   = Globals.getDomain() + "rest/amazon/getWishItem";
 

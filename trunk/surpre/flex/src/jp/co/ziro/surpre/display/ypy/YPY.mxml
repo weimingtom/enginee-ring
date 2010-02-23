@@ -11,6 +11,7 @@
 
 		//初期化
 		private function init():void {
+			Globals.viewPage("/search");
 			searchYahooService.url   = Globals.getDomain() + "rest/yahoo/search";
 			searchPhotoService.url = Globals.getDomain() + "rest/photozo/search";
 			searchYoutubeService.url = Globals.getDomain() + "rest/youtube/search";
