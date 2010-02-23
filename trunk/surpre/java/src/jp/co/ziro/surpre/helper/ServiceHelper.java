@@ -47,7 +47,9 @@ public class ServiceHelper {
      */
     public Document getDocument(String endPoint) {
         //logger.info(buffer.toString());
-        Document rtnDoc = XmlUtil.getXml(getHttp(endPoint));
+        String rtn = getHttp(endPoint);
+        if ( rtn == null ) return null;
+        Document rtnDoc = XmlUtil.getXml(rtn);
         return rtnDoc;
     }
    
