@@ -9,6 +9,7 @@ package jp.co.ziro.surpre.display
     	public static const TWITTER_TIMELINE:String = "twitterTimeline"; 
     	public static const TWITTER_CM:String       = "twitterCM"; 
     	public static const TWITTER_FOLLOWER:String = "twitterFollower"; 
+    	public static const TWITTER_FRIEND:String   = "twitterFriend"; 
     	public static const EMPTY:String       = "empty"; 
 	}
 }

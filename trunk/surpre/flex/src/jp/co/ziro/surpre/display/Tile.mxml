@@ -4,6 +4,7 @@
 		 xmlns:display="jp.co.ziro.surpre.display.*" creationComplete="init();">
 	<mx:Script>
 		<![CDATA[
+			import jp.co.ziro.surpre.event.PanelEvent;
 		import mx.controls.Alert;
 		import mx.events.EffectEvent;
 		import jp.co.ziro.surpre.event.TileEvent;
@@ -51,7 +52,7 @@
 				items[scrollStack.selectedIndex].initComponent(targetXml,itemType);
 
 				//空の表示の場合はイベントは要らない
-				if (itemType != ItemType.EMPTY ) {
+				if ( itemType != ItemType.EMPTY && itemType != ItemType.TWITTER_FRIEND) {
 					//変更イベントを生成
 		    		var changeEvent:TileEvent = new TileEvent("change",itemType,_idx);	
 					//イベントの割り当てを行う
@@ -67,6 +68,11 @@
 			items[scrollStack.selectedIndex].clear();
 		}
 
+		private function showFriend(event:PanelEvent):void {
+			//アイテムを変更する
+			changeItem(event.getRest(),event.getItemType());
+		}
+
 		]]>
 	</mx:Script>
 
@@ -80,8 +86,8 @@
 
 	<!-- 表示切替用のViewStack -->	
 	<mx:ViewStack id="scrollStack" clipContent="true">
-		<display:Item id="item1" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();"/>
-		<display:Item id="item2" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();"/>
+		<display:Item id="item1" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();" friend="showFriend(event)"/>
+		<display:Item id="item2" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();" friend="showFriend(event)"/>
 	</mx:ViewStack>
 
 </mx:Canvas>

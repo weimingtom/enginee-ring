@@ -9,7 +9,7 @@
 		import jp.co.ziro.surpre.Globals;
 		import jp.co.ziro.surpre.event.PanelEvent;
        	import jp.co.ziro.flex.controls.WaitWindow;
-        import jp.co.ziro.flex.events.WaitCancelEvent;
+        import jp.co.ziro.flex.events.WaitEvent;
 		import jp.co.ziro.surpre.display.ItemType;
 		import mx.managers.PopUpManager;
 		import jp.co.ziro.surpre.event.TimelineEvent;
@@ -177,7 +177,7 @@
 			PopUpManager.addPopUp(waitWindow, this, true);
    			PopUpManager.centerPopUp(waitWindow);
    			//キャンセルイベントを作成
-			waitWindow.addEventListener(WaitCancelEvent.CANCEL,uploadCancel);
+			waitWindow.addEventListener(WaitEvent.CANCEL,uploadCancel);
 			
 			upload();
 		}

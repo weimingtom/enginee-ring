@@ -10,6 +10,10 @@
 		import jp.co.ziro.surpre.Globals;
 		import mx.controls.Alert;
 		import jp.co.ziro.surpre.event.TimelineEvent;
+  		import mx.events.DragEvent;
+  		import mx.core.DragSource;
+  		import mx.managers.DragManager;
+ 
 		
 		[Bindable]	
 		private var myXml:XML;
@@ -42,6 +46,8 @@
 			var lfData:String = crData.replace(/\n/g,"");
 			return lfData;
 		}
+
+
 		]]>
 	</mx:Script>
 	<!-- イベントを作成 -->
@@ -49,7 +55,7 @@
 		[Event(name="reply", type="jp.co.ziro.surpre.event.TimelineEvent")]
 	</mx:Metadata>
 
-	<mx:DataGrid id="followerGrid" width="100%" height="100%" dataProvider="{myXml.status}" headerHeight="0" doubleClickEnabled="true" doubleClick="reply()">
+	<mx:DataGrid id="followerGrid" width="100%" height="100%" dataProvider="{myXml.status}" headerHeight="0" doubleClickEnabled="true" doubleClick="reply()" dragEnabled="true">
 		<mx:columns>
 			<mx:DataGridColumn dataField="@image"  width="32"  itemRenderer="mx.controls.Image"/>
 			<mx:DataGridColumn dataField="@userId" width="50"/>

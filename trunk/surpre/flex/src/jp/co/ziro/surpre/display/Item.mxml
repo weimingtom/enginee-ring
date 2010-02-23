@@ -7,6 +7,7 @@
 
 	<mx:Script>
 		<![CDATA[
+			import mx.controls.DataGrid;
 
 		import jp.co.ziro.surpre.display.amazon.AmazonItem;
 		import jp.co.ziro.surpre.display.photozo.PhotozoItem;
@@ -14,10 +15,15 @@
 		import jp.co.ziro.surpre.display.youtube.YoutubeItem;
 		import jp.co.ziro.surpre.display.twitter.TimelineItem;
 		import jp.co.ziro.surpre.display.twitter.FollowerItem;
+		import jp.co.ziro.surpre.display.twitter.FriendItem;
 		import jp.co.ziro.surpre.Globals;
 		import jp.co.ziro.surpre.event.TimelineEvent;
 		import mx.controls.Alert;
-
+  		import mx.core.DragSource;
+  		import mx.managers.DragManager;
+  		import mx.events.DragEvent;
+		import jp.co.ziro.surpre.event.PanelEvent;
+ 
 		private var drowItem:BaseItem;
 		
 		private var _idx:Number;
@@ -53,6 +59,8 @@
 				drowItem.addEventListener(TimelineEvent.REPLY,reply);
 			} else if ( type == ItemType.TWITTER_CM ) {
 				drowItem = new AmazonItem();
+			} else if ( type == ItemType.TWITTER_FRIEND ) {
+				drowItem = new FriendItem();
 			} else if ( type == ItemType.YAHOO ) {
 				drowItem = new YahooItem();
 			} else if ( type == ItemType.YOUTUBE ) {
@@ -97,13 +105,30 @@
 		//ドラッグ終了
 		private function dragEnd(event:MouseEvent):void {
 			
-
 			if ( ((event.localX - startPointX) < -55) &&
 			     (Math.abs((event.localY - startPointY)) < 20 ) ) {
 				//変更イベントを生成
 	 			var emptyEvent:Event = new Event("empty");			
 				//イベントの割り当てを行う
 				dispatchEvent(emptyEvent);	
+			}
+		}
+
+		//ドロップを許可		
+		private function dropAccept(event:DragEvent) : void {
+			if ( event.dragSource.hasFormat("items") ) {
+   				DragManager.acceptDragDrop(drowCanvas);
+   			}
+		}
+
+		//ドロップした時
+		private function drop(event:DragEvent) : void {
+			if ( event.dragSource.hasFormat("items") ) {
+				var xml:XML = new XML(event.dragSource.dataForFormat("items").toString());
+				//変更イベントを生成
+	 			var tileEvent:PanelEvent = new PanelEvent("friend",xml,ItemType.TWITTER_FRIEND,_idx);
+				//イベントの割り当てを行う
+				dispatchEvent(tileEvent);	
 			}
 		}
 
@@ -114,11 +139,14 @@
 	<mx:Metadata>
 		[Event(name="redrow", type="flash.events.Event")]
 		[Event(name="empty" , type="flash.events.Event")]
-		[Event(name="reply", type="jp.co.ziro.surpre.event.TimelineEvent")]
+		[Event(name="friend", type="jp.co.ziro.surpre.event.PanelEvent")]
+		[Event(name="reply",  type="jp.co.ziro.surpre.event.TimelineEvent")]
 	</mx:Metadata>
 
 	<!-- 表示する領域 -->
-	<mx:Canvas id="drowCanvas" width="100%" height="100%" mouseDown="dragStart(event)" mouseUp="dragEnd(event);">
+	<mx:Canvas id="drowCanvas" width="100%" height="100%" 
+		       mouseDown="dragStart(event)" mouseUp="dragEnd(event);"
+		       dragEnter="dropAccept(event)" dragDrop="drop(event)" >
 	</mx:Canvas>
 
 </mx:VBox>
