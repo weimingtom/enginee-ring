@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BaseItem xmlns="jp.co.ziro.surpre.display.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+			xmlns:twitter="jp.co.ziro.surpre.display.twitter.*"
+			 verticalAlign="middle" horizontalAlign="center">
+
+	<mx:Script>
+	
+		<![CDATA[
+
+		import jp.co.ziro.surpre.Globals;
+		import mx.controls.Alert;
+		import jp.co.ziro.surpre.event.TimelineEvent;
+		
+		[Bindable]	
+		private var imageUrl:String;
+		[Bindable]	
+		private var userId:String;
+		[Bindable]	
+		private var date:String;
+
+		/**
+		 * クリックした場合
+		 */
+		public override function changeItem():void {
+			friendService.url   = Globals.getDomain() + "rest/twitter/getFriend";
+
+			//Alert.show(xmlData);
+			if (xmlData == null )	{
+				return;	
+			}
+
+			imageUrl = xmlData.@image;
+			userId = xmlData.@userId;
+			date = xmlData.@date;
+			
+			//データを送信する
+			friendService.send();
+		}
+		
+		private function updateData():void {
+		}
+
+		//改行削除	
+		private function removeCRLF(data:Object, column:DataGridColumn):String {
+			var xmlData:XML = data as XML;
+			var textData:String = xmlData.text.text();
+			//改行文字CRを削除
+			var crData:String = textData.replace(/\r/g,"");
+			//改行文字LFを削除
+			var lfData:String = crData.replace(/\n/g,"");
+			return lfData;
+		}
+
+		private function showComment():void {
+			Alert.show(followerGrid.selectedItem.@date + followerGrid.selectedItem.text.text());
+		}
+		]]>
+	</mx:Script>
+    <mx:HTTPService id="friendService" showBusyCursor="true" method="POST" resultFormat="e4x" result="updateData();">	
+      <mx:request>
+        <screenName>
+        {userId}
+        </screenName>
+      </mx:request>
+    </mx:HTTPService>
+    
+	<mx:HBox verticalAlign="middle">
+		<mx:Image width="45" height="45" source="{imageUrl}"/>
+		<mx:VBox>
+			<mx:Label text="{userId}"/>
+			<mx:Label text="{date}"/>
+		</mx:VBox>
+	</mx:HBox>
+
+	<mx:DataGrid id="followerGrid" width="205" height="150" dataProvider="{friendService.lastResult.status}" headerHeight="0" doubleClickEnabled="true" doubleClick="showComment()">
+		<mx:columns>
+			<mx:DataGridColumn dataField="text"    width="120" labelFunction="removeCRLF"/>
+		</mx:columns>
+	</mx:DataGrid>
+</BaseItem>
