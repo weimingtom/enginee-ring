@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.slim3.controller.upload.FileItem;
+import org.slim3.util.ApplicationMessage;
 
 import jp.co.ziro.surpre.model.SurpreData;
 import jp.co.ziro.surpre.service.SurpreService;
@@ -26,8 +27,8 @@ public class FlickrServiceHelper extends ServiceHelper {
     @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger(FlickrServiceHelper.class.getName());
     
-    private static final String KEY = "3c0e7084737fd38fd89cec70e50bb09b";
-    private static final String SECRET = "70f72ab7038cd64a";
+    private static final String KEY = ApplicationMessage.get("flickr.key");
+    private static final String SECRET = ApplicationMessage.get("flickr.secret");
 
     /**
      * コンストラクタ

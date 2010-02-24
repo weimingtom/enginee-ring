@@ -2,6 +2,7 @@ package jp.co.ziro.surpre.helper;
 
 import java.util.logging.Logger;
 
+import org.slim3.util.ApplicationMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,7 +19,7 @@ public class BitlyServiceHelper extends ServiceHelper {
     /**
      * APIキー
      */
-    private static final String APIKEY = "R_70366d87143d573e12acf0aed9c391ce";
+    private static final String APIKEY = ApplicationMessage.get("bitly.key");
     /**
      * ログインID
      */

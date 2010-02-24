@@ -19,31 +19,37 @@ import twitter4j.TwitterException;
 import twitter4j.http.AccessToken;
 import twitter4j.http.RequestToken;
 
-public class GetAuthController extends Controller {
+/**
+ * Twitter登録コントローラー
+ * @author z001
+ */
+public class RegistAuthController extends Controller {
 
     //@SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger(GetAuthController.class.getName());
+    private static final Logger logger = Logger.getLogger(RegistAuthController.class.getName());
+
     @Override
     public Navigation run() {
+        
+        String redirectBuf = "../../home?select=twitter";
 
         SurpreService service = new SurpreService();
         SurpreData model = service.find();
-        
+
         if ( service.isRegistTwitter(model) ) {
            logger.warning("すでにユーザ登録済");
-           return redirect("../../home");
+           return redirect(redirectBuf);
         }
 
         String denied = requestScope("denied");
         if ( denied != null && !denied.equals("") ) {
-            return redirect("../../home");
+            return redirect(redirectBuf);
         }
 
         Twitter twitter = TwitterServiceHelper.getTwitter();
 
         RequestToken requestToken = sessionScope("requestToken");
         sessionScope("requestToken",null);
-
 
         AccessToken accessToken = null;
         try {
@@ -70,6 +76,6 @@ public class GetAuthController extends Controller {
 
         Datastore.put(model);
 
-        return redirect("../../home");
+        return redirect(redirectBuf);
     }
 }

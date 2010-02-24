@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import org.slim3.util.ApplicationMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -38,11 +39,11 @@ public class AmazonServiceHelper extends OAuthServiceHelper {
     /**
      * キー
      */
-    private static final String KEY = "AKIAIT4CCIR4BYOASWJQ";
+    private static final String KEY = ApplicationMessage.get("amazon.key");
     /**
      * シークレット
      */
-    private static final String SECRET = "6xeTNJR+LCRpw0F69L+fDGZ97/YBXjmGfxWR3XzX";
+    private static final String SECRET = ApplicationMessage.get("amazon.secret");
     /**
      * URI
      */

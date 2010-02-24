@@ -13,16 +13,20 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
-public class GetAuthController extends Controller {
+/**
+ * Mixi登録コントローラー
+ * @author z001
+ */
+public class RegistAuthController extends Controller {
 
     @SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger(GetAuthController.class.getName());
+    private static final Logger logger = Logger.getLogger(RegistAuthController.class.getName());
     @Override
     public Navigation run() {
         
         String mixiId = requestScope("mixiId");
         if ( mixiId == null || mixiId.equals("") ) {
-            return redirect("../../home");
+            return redirect("../../home?select=mixi");
         }
 
         SurpreService service = new SurpreService();
@@ -40,6 +44,6 @@ public class GetAuthController extends Controller {
         model.setUser(user);
         Datastore.put(model);
 
-        return redirect("../../home");
+        return redirect("../../home?select=mixi");
     }
 }

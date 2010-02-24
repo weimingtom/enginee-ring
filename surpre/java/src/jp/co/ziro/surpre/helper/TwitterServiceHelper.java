@@ -2,6 +2,8 @@ package jp.co.ziro.surpre.helper;
 
 import java.util.logging.Logger;
 
+import org.slim3.util.ApplicationMessage;
+
 import jp.co.ziro.surpre.model.SurpreData;
 import jp.co.ziro.surpre.service.SurpreService;
 
@@ -14,8 +16,8 @@ public class TwitterServiceHelper {
     @SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger(TwitterServiceHelper.class.getName());
 
-    private static final String KEY = "DVBdI8QMgIdi5lTmhtC91g";
-    private static final String KEY_SECRET = "0nhZiof2GOhdobaQ05BwHNlZuuPp3n3Wh8i2zsNtIg";
+    private static final String KEY = ApplicationMessage.get("twitter.key");
+    private static final String KEY_SECRET = ApplicationMessage.get("twitter.secret");
 
     public static Twitter getTwitter() {
         Twitter twitter = new TwitterFactory().getInstance();
