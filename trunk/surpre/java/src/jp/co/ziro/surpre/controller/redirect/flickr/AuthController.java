@@ -18,7 +18,7 @@ public class AuthController extends Controller {
 
     @Override
     public Navigation run() {
- 
+
         FlickrServiceHelper helper = new FlickrServiceHelper();
         AuthInterface authInterface = helper.getAuthInterface();
 

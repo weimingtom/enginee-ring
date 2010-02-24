@@ -50,7 +50,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 
 	AC_FL_RunContent(
 		"src", "playerProductInstall",
-		"FlashVars", "MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
+		"FlashVars", "select=${select}&MMredirectURL="+MMredirectURL+'&MMplayerType='+MMPlayerType+'&MMdoctitle='+MMdoctitle+"",
 		"width", "100%",
 		"height", "100%",
 		"align", "middle",
@@ -67,6 +67,7 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 	// embed the Flash Content SWF when all tests are passed
 	AC_FL_RunContent(
 			"src", "home",
+			"FlashVars", "select=${select}",
 			"width", "100%",
 			"height", "100%",
 			"align", "middle",
@@ -90,11 +91,13 @@ if ( hasProductInstall && !hasRequestedVersion ) {
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
 			id="home" width="100%" height="100%"
 			codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
+			<param name="flashvars" value="select=${select}" />
 			<param name="movie" value="home.swf" />
 			<param name="quality" value="high" />
 			<param name="bgcolor" value="#869ca7" />
 			<param name="allowScriptAccess" value="sameDomain" />
 			<embed src="home.swf" quality="high" bgcolor="#869ca7"
+			    flashvars="select=${select}"
 				width="100%" height="100%" name="home" align="middle"
 				play="true"
 				loop="false"

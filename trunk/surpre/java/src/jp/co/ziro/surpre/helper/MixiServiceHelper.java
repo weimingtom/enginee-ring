@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import jp.co.ziro.surpre.dto.MixiDto;
 import jp.co.ziro.surpre.util.XmlUtil;
 
+import org.slim3.util.ApplicationMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
@@ -26,11 +27,11 @@ public class MixiServiceHelper extends OAuthServiceHelper {
     /**
      * アプリケーションキー
      */
-    private static final String KEY      = "84a8ae4d8ae1d8851c6b";
+    private static final String KEY      = ApplicationMessage.get("mixi.key");
     /**
      * アプリケーションシークレットキー
      */
-    private static final String SECRET   = "8e55861308b7b39ea202d669452bc7b5d3633f66";
+    private static final String SECRET   = ApplicationMessage.get("mixi.secret");
     /**
      * エンドポイント
      */

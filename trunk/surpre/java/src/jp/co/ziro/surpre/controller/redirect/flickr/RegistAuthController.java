@@ -16,19 +16,24 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
-public class GetAuthController extends Controller {
+/**
+ * Flickr登録コントローラー
+ * @author z001
+ */
+public class RegistAuthController extends Controller {
 
     //@SuppressWarnings("unused")
-    private static final Logger logger = Logger.getLogger(GetAuthController.class.getName());
+    private static final Logger logger = Logger.getLogger(RegistAuthController.class.getName());
 
     @Override
     public Navigation run() {
 
+        String redirectBuf = "../../home?select=twitter";
         SurpreService service = new SurpreService();
         SurpreData model = service.find();
         if ( service.isRegistFlickr(model) ) {
             logger.warning("すでにユーザ登録済");
-            return redirect("../../home");
+            return redirect(redirectBuf);
         }
 
         FlickrServiceHelper helper = new FlickrServiceHelper();
@@ -55,6 +60,6 @@ public class GetAuthController extends Controller {
             throw new RuntimeException(e);
         }
 
-        return redirect("../../home");
+        return redirect(redirectBuf);
     }
 }

@@ -13,9 +13,14 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.http.RequestToken;
 
+/**
+ * 登録へ移動
+ * @author z001
+ *
+ */
 public class AuthController extends Controller {
 
-    @SuppressWarnings("unused")
+    //@SuppressWarnings("unused")
     private static final Logger logger = Logger.getLogger(AuthController.class.getName());
     
     @Override
@@ -26,8 +31,8 @@ public class AuthController extends Controller {
         SurpreData data = service.find();
         //登録済みの場合
         if ( service.isRegistTwitter(data) ) {
-            //そのまま返す
-            return forward("../url.jsp");
+            logger.warning("すでにユーザ登録済");
+            return redirect("../../home");
         }
 
         //取得する
