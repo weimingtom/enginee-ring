@@ -62,7 +62,7 @@
 	</mx:HBox>
 
 	<mx:HBox height="15">
-		<mx:LinkButton label="{userId}" click="clickLink()"/>
+		<mx:LinkButton label="{userId}" click="clickLink()" width="80"/>
 		<mx:Label text="{date}"/>
 	</mx:HBox>
 
