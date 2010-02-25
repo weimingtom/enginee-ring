@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" 
+		 xmlns:viewStackEffects="org.efflex.mx.viewStackEffects.*"
+		 xmlns:display="jp.co.ziro.surpre.display.*" creationComplete="init();">
+	<mx:Script>
+		<![CDATA[
+			import jp.co.ziro.surpre.event.PanelEvent;
+		import mx.controls.Alert;
+		import mx.events.EffectEvent;
+		import jp.co.ziro.surpre.event.TileEvent;
+		
+		import mx.collections.ArrayCollection;
+		private var items:ArrayCollection = new ArrayCollection();
+		private var targetXml:XML;
+		private var itemType:String;
+
+		[Bindable]
+		private var _idx:Number;
+		private var _effectIdx:Number;
+		
+		public function set index(value:Number):void {
+			_idx = value;
+		}	
+		private function init():void {
+			items.addItem(item1);
+			items.addItem(item2);
+		}
+
+		//検索アイテムを変更する
+		public function changeItem(xml:XML,type:String):void {
+			targetXml = xml;
+			itemType = type;
+			//消し込んで初期化(redrow)を待つ
+			items[scrollStack.selectedIndex].clear();
+		}
+
+		//アイテムの回転を行う	
+		private function scrollItem():void {
+			//逆側のインデックスに変更する
+			if ( scrollStack.selectedIndex == 0 ) {
+				scrollStack.selectedIndex = 1;
+			} else {
+				scrollStack.selectedIndex = 0;
+			}
+		}
+
+		//エフェクトが終了した場合	
+		private function raiseChangeEvent(event:EffectEvent):void {
+			//次の処理を行う
+			if ( event.target == items[scrollStack.selectedIndex] ) {
+				//データを入れ替える
+				items[scrollStack.selectedIndex].initComponent(targetXml,itemType);
+
+				//空の表示の場合はイベントは要らない
+				if ( itemType != ItemType.EMPTY && itemType != ItemType.TWITTER_FRIEND) {
+					//変更イベントを生成
+		    		var changeEvent:TileEvent = new TileEvent("change",itemType,_idx);	
+					//イベントの割り当てを行う
+					dispatchEvent(changeEvent);
+				}
+			}
+		}
+
+		private function emptyTile():void {
+			targetXml = null;
+			itemType = ItemType.EMPTY;
+			//消し込んで初期化(redrow)を待つ
+			items[scrollStack.selectedIndex].clear();
+		}
+
+		private function showFriend(event:PanelEvent):void {
+			//アイテムを変更する
+			changeItem(event.getRest(),event.getItemType());
+		}
+
+		]]>
+	</mx:Script>
+
+	<viewStackEffects:CubePapervision3D id="effect" duration="400"/>
+
+	<!-- イベントを作成 -->
+	<mx:Metadata>
+		[Event(name="change", type="jp.co.ziro.surpre.event.TileEvent")]
+		[Event(name="reply", type="jp.co.ziro.surpre.event.TimelineEvent")]
+	</mx:Metadata>
+
+	<!-- 表示切替用のViewStack -->	
+	<mx:ViewStack id="scrollStack" clipContent="true">
+		<display:Item id="item1" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();" friend="showFriend(event)"/>
+		<display:Item id="item2" index="{_idx}" showEffect="effect" hideEffect="effect" effectEnd="raiseChangeEvent(event);" redrow="scrollItem()" reply="dispatchEvent(event)" empty="emptyTile();" friend="showFriend(event)"/>
+	</mx:ViewStack>
+
+</mx:Canvas>
