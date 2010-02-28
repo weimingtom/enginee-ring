@@ -3,7 +3,11 @@ package jp.co.ziro.surpre.dto;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import jp.co.ziro.surpre.util.HtmlUtil;
+
+
 import twitter4j.Status;
+import twitter4j.Tweet;
 import twitter4j.User;
 
 public class TimelineDto {
@@ -29,7 +33,7 @@ public class TimelineDto {
         cal.add(Calendar.HOUR_OF_DAY, 9);
         date = sdf.format(cal.getTime());
         image =  status.getUser().getProfileImageURL().toExternalForm();
-        text = status.getText();
+        text = HtmlUtil.autoLink(status.getText());
     }
     /**
      * 生成する
@@ -50,7 +54,24 @@ public class TimelineDto {
            date = ""; 
         }
         image =  user.getProfileImageURL().toExternalForm();
-        text = user.getStatusText();
+        text = HtmlUtil.autoLink(user.getStatusText());
+    }
+    public TimelineDto(Tweet tweet) {
+        userId  =  tweet.getFromUser();
+        userName = "userName";
+ 
+        if ( tweet.getCreatedAt() != null ) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(tweet.getCreatedAt());
+            //TODO 日本時間を追加
+            cal.add(Calendar.HOUR_OF_DAY, 9);
+            date = sdf.format(cal.getTime());
+        } else {
+           date = ""; 
+        }
+        image = tweet.getProfileImageUrl();
+        text = HtmlUtil.autoLink(tweet.getText());
     }
     public String getUserName() {
         return userName;
