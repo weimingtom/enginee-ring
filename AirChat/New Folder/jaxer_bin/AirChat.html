@@ -1,0 +1,305 @@
+<html>
+	<head>
+		<script src='http://127.0.0.1:8000/AirChat/AirChat.html'></script>
+        <title>Airチャ�?��</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link href="style.css" rel="stylesheet" type="text/css"/>
+        <link href="modal.css" rel="stylesheet" type="text/css"/>
+		<link rel="stylesheet" href="farbtastic.css" type="text/css" />
+
+        <script type="text/javascript" src="lib/air/AIRAliases.js"></script>
+        <script type="text/javascript" src="lib/modal.js" charset="UTF-8"></script>
+		<script type="text/javascript" src="lib/security.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="lib/jquery-1.3.2.min.js" ></script>
+		<script type="text/javascript" src="lib/farbtastic.js"></script>
+        <script type="text/javascript" src="lib/airchat-xmlsoket.js" charset="UTF-8"></script>
+
+        <script type="text/javascript">
+            // AIR-related functions created by the developer
+			var myMsgNum = 0;
+			var myHandleName="";
+			var myColor="#ffffff";
+			var myUniqueKey="";
+			var myImgMap=new Array();
+			/**
+			 * キー入力時の EnterKey チェ�?��
+			 * 本メソ�?��では、エンターキー押下時に、メ�?��ージを�?信し�?入力をクリアしま�?
+			 * @param {Object} kcode
+			 */
+			function inputKeyPress(kcode){
+				if(kcode != 13) return; 
+				var elm = document.getElementById("msg");
+				//XSS対�?
+				var sanitizeMsg = sanitizeXSS(elm.value);
+				sendMessage(sanitizeMsg);
+				// 入力をクリアする
+				elm.value="";
+			}
+			/**
+			 * メ�?��ージの送信
+			 * @param {Object} msg�?���?��ージ
+			 */
+			function sendMessage(msg) {
+				if(msg.length == 0 )return;
+				myMsgNum++;
+				var mod2 = myMsgNum % 2;
+				var wkmsg = "<div style='color:"+myColor+ "' class='msg0'>"+myMsgNum + ":" +myHandleName+">"+msg+"</div>";
+				//ソケ�?��用メ�?��ージの送信
+				sendSocketMessage(wkmsg);
+			}
+			/**
+			 * 初期画面へ?�登録画面表示??
+			 */
+			function init(){
+				dispModalbox();
+			}
+
+			/**
+			 * HN登録
+			 */
+			function registHN(){
+				// �?���?色の取�?
+				var colorElm = document.getElementById("color");
+				myColor = colorElm.value;
+				// HNの取�?
+				var elm = document.getElementById("handleName");
+				var bkupHN = myHandleName;
+				if ( elm.value.length > 0) {
+					//XSS対�?
+					var sanitizeName = sanitizeXSS(elm.value);
+					myHandleName = sanitizeName;
+				} else {
+					myHandleName = "名無�?;
+				}
+				closeModalbox();
+				
+	
+				if (bkupHN != myHandleName) {
+					// クライアント固有�?�??タを作�?する
+					var now = new Date();
+					var year = now.getYear(); // 年
+					if(year < 2000) { year += 1900; }
+					var month = now.getMonth() + 1; // �?
+					var day = now.getDate(); // 日
+					var hour = now.getHours(); // �?
+					var min = now.getMinutes(); // �?
+					var sec = now.getSeconds(); // �?
+					myUniqueKey=""+year+month+day+hour+min+sec;
+					
+					//チャ�?��サーバ�?へ接�?
+					conectChatServer();
+				}
+			}
+			
+			/**
+			 * チャ�?��サーバ�?へ接�?
+			 */
+			function conectChatServer(){
+				connectSocketServer("www.チャ�?��サーバ�?URL",49153);
+			}
+
+			/**
+			 * カラーピッカーの設�?
+			 */
+			$(document).ready(function() {
+    			$('#demo').hide();
+    			$('#picker').farbtastic('#color');
+ 			});
+
+			// closeイベントをキャ�?��する
+			window.nativeWindow.addEventListener(air.Event.CLOSING, onClosingEvent);
+			
+			/**
+			 * クローズ時�?イベント（�?出メ�?��ージの送信??
+			 */
+			function onClosingEvent(){
+				if ( myHandleName == "") return;
+				var msg = myHandleName + "は�??されました�?;
+				sendSocketMessage(msg);
+			}
+			
+			/**
+			 * body�?��ドロ�??のターゲ�?��にする
+			 * @param {Object} event
+			 */
+			function doDragEnter(event) {
+				event.preventDefault();				
+			}
+			/**
+			 * ドラ�?��オーバ�?時�?�?��ォルト�?�?��無効にすることで、body をドロ�??ターゲ�?��にする
+			 * @param {Object} event
+			 */
+			function doDragOver(event){
+				event.preventDefault();
+			}
+			/**
+			 * dragleave時�?�?��ォルト�?�?��無効にすることで、body をドロ�??ターゲ�?��にする
+			 * @param {Object} event
+			 */
+			function doDragLeave(event){
+				event.preventDefault();
+			}
+
+			/**
+			 * ドロ�??時�?処�?
+			 * @param {Object} event
+			 */
+			function doDrop( event ) {
+				var fileList = event.dataTransfer.getData("application/x-vnd.adobe.air.file-list");
+				if ( fileList.length <= 0 ) return;
+				if ( fileList.length > 4 ) {
+					alert("画像�?同時に?�つまでにして下さ�??");
+					return;
+				}
+				
+				for ( var cnt = 0;cnt < fileList.length; cnt++ ) {
+					var filename = fileList[cnt].url;
+					//画像以外�?送信付加
+					if ( !doUploadChack(filename) ) {
+						alert("画像だけにして下さ�??");
+						return;
+					}
+					var unique = myUniqueKey + myMsgNum + cnt;
+					upload(filename,unique);
+				}
+			}
+
+			/**
+			 * ア�??ロードするかのチェ�?��
+			 * @param {Object} filename�?��ァイル�?
+			 */			
+			function doUploadChack(filename){
+				var idx = filename.indexOf(".");
+				if ( idx < 0 ) return false;
+				var type = filename.substring(idx+1);
+				type = type.toUpperCase();
+				if ( type == "JPEG" || type == "JPG" || type == "PNG" ||
+					 type == "GIF" || type == "BMP" || type == "TIF" || type == "TIFF") {
+					 	return true;
+				}
+				return false;
+			}
+
+			/**
+			 * ア�??ロー�?
+			 * 日本語対�?
+			 * �??Apacheは日本語ファイルの参�?�?��くいかな�??で�??信時：クライアント固有�?�??タIDを�?信�?
+			 * �??そ�?後�?クライアント固有�?�??タIDにて、ServletへGETで接続し、XML�??タを受信する
+			 * �??サーバ�?では、ア�??ロード時、ファイル名を独自のルールで作�?する�?
+			 * �??そ�?後�?クライアント固有�?�??タIDにて、ServletへGETで接続したら、XML�??タを返す
+			 * @param filepath ファイルパス
+			 * @param dateID �??タ固有�?ID
+			 */
+			function upload(filepath,dateID) {
+				// ファイルオフじ�?��と生�?
+				var fileObject = new air.File(filepath);
+				
+				// �?��イベント登録
+				fileObject.addEventListener(air.Event.COMPLETE, completeUploadHandler);
+				fileObject.addEventListener(air.IOErrorEvent.IO_ERROR,ioErrorHandler);
+				fileObject.addEventListener(air.ProgressEvent.PROGRESS, progressHandler);
+				
+				// リクエスト登録 
+    	        var url = "http://www.Upload用サーバ�?URL/FileUploader/Uploader?id="+dateID;
+				// 日本語対策で、名前と�??タを関連つけておく
+				myImgMap[fileObject.name] = dateID;
+	            var request = new air.URLRequest(url);
+        	    request.method = air.URLRequestMethod.POST;
+				fileObject.upload(request);
+	        }
+
+			/**
+			 * 送信完�?��のイベントメソ�?��
+			 * @param {Object} event
+			 */
+			function completeUploadHandler(event) 
+			{ 
+			    air.trace("...complete..."); 
+				var filename = event.target.name;
+				var dataID = myImgMap[filename];
+				// リクエスト登録 
+    	        var url = "http://www.Upload用サーバ�?URL/FileUploader/Uploader?id="+dataID;
+				
+				// エンコー�?
+				var uri = encodeURI(url);
+	            var request = new air.URLRequest(uri);
+        	    request.method = air.URLRequestMethod.GET;
+				var loader = new air.URLLoader();
+				loader.addEventListener(air.Event.COMPLETE,completeGetHandler);
+				loader.load(request);
+				
+
+			}
+
+			/**
+			 * ファイル�?��ンロード用のGetハンドラー
+			 * @param {Object} event
+			 */
+			function completeGetHandler(event) {
+				//XMl�??タ受信				
+				var xmldata = event.target.data;
+				// �?��ンロード用のパス(URL)を取得す�?
+				var dlkey="<download>";
+				var sttidx = xmldata.indexOf(dlkey);
+				var endidx = xmldata.indexOf("</download>");
+				var url = xmldata.substring(sttidx+dlkey.length,endidx);
+				myMsgNum++;
+				var wkmsg = "<div style='color:"+myColor+ "' class='msg0'>"+myMsgNum + ":" +myHandleName+">";
+				var msg = "<img src='"+url+"'/></div>";
+				//ソケ�?��用メ�?��ージの送信
+				sendSocketMessage(wkmsg+msg);
+			}
+			
+			/**
+			 * 送信失敗時
+			 * @param {Object} event
+			 */
+			function ioErrorHandler(event){
+			    air.trace("...ioError..."); 
+			}
+			/**
+			 * プログレスハンドラー
+			 * @param {Object} event
+			 */
+			function progressHandler(event) {
+            	air.trace("bytesLoaded=" + event.bytesLoaded + "; bytesTotal=" + event.bytesTotal);
+	        }
+        </script>
+	</head>
+
+
+    <body bgcolor="black" text="white" onload="init()" 
+	      ondragenter="doDragEnter(event)"
+		  ondragover="doDragOver(event)"
+		  ondragleave="doDragLeave(event)"
+		  ondrop="doDrop(event)">
+	<!-- チャ�?��画面 -->
+	<button onclick="dispModalbox()">オプション</button>
+    	<div id="chat">
+    		<div class="log">
+    			<table border="2" width="515" height="400">
+    				<tr>
+    					<td valign="top"><div id="str"></div></td>
+    				</tr>
+   			 	</table>
+			</div>
+			<input id="msg" type="text" size="50" onkeypress="return inputKeyPress(event.keyCode);"/> 
+    	</div>
+
+	<!-- 以下�?初期画面の登録画面 -->
+	<div id="overlay">
+	<div id="modalbox">
+		<br>
+		ハンドルネ�?�??登録�?input id="handleName" type="text" size="20" />
+		
+		<!-- カラーピッカー -->		
+		<div id="demo" style="color: red; font-size: 1.4em">jQuery.js is not present. You must install jQuery in this folder for the demo to work.</div>
+		<form action="" style="width: 400px;">
+  			<div class="form-item"><label for="color">�?���?色</label><input type="text" id="color" name="color" value="#ffffff" /></div><div id="picker"></div>
+		</form>
+		<div style="position:relative ; top:-50px; left:-30px;" align=right><button onclick="registHN()">登録</button></div>
+	</div>
+	
+
+	</body>
+</html>

@@ -1,0 +1,304 @@
+<html>
+	<head>
+        <title>Airチャット</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link href="style.css" rel="stylesheet" type="text/css"/>
+        <link href="modal.css" rel="stylesheet" type="text/css"/>
+		<link rel="stylesheet" href="farbtastic.css" type="text/css" />
+
+        <script type="text/javascript" src="lib/air/AIRAliases.js"></script>
+        <script type="text/javascript" src="lib/modal.js" charset="UTF-8"></script>
+		<script type="text/javascript" src="lib/security.js" charset="UTF-8"></script>
+        <script type="text/javascript" src="lib/jquery-1.3.2.min.js" ></script>
+		<script type="text/javascript" src="lib/farbtastic.js"></script>
+        <script type="text/javascript" src="lib/airchat-xmlsoket.js" charset="UTF-8"></script>
+
+        <script type="text/javascript">
+            // AIR-related functions created by the developer
+			var myMsgNum = 0;
+			var myHandleName="";
+			var myColor="#ffffff";
+			var myUniqueKey="";
+			var myImgMap=new Array();
+			/**
+			 * キー入力時の EnterKey チェック
+			 * 本メソッドでは、エンターキー押下時に、メッセージを送信し、入力をクリアします
+			 * @param {Object} kcode
+			 */
+			function inputKeyPress(kcode){
+				if(kcode != 13) return; 
+				var elm = document.getElementById("msg");
+				//XSS対策
+				var sanitizeMsg = sanitizeXSS(elm.value);
+				sendMessage(sanitizeMsg);
+				// 入力をクリアする
+				elm.value="";
+			}
+			/**
+			 * メッセージの送信
+			 * @param {Object} msg　メッセージ
+			 */
+			function sendMessage(msg) {
+				if(msg.length == 0 )return;
+				myMsgNum++;
+				var mod2 = myMsgNum % 2;
+				var wkmsg = "<div style='color:"+myColor+ "' class='msg0'>"+myMsgNum + ":" +myHandleName+">"+msg+"</div>";
+				//ソケット用メッセージの送信
+				sendSocketMessage(wkmsg);
+			}
+			/**
+			 * 初期画面へ（登録画面表示）
+			 */
+			function init(){
+				dispModalbox();
+			}
+
+			/**
+			 * HN登録
+			 */
+			function registHN(){
+				// 文字の色の取得
+				var colorElm = document.getElementById("color");
+				myColor = colorElm.value;
+				// HNの取得
+				var elm = document.getElementById("handleName");
+				var bkupHN = myHandleName;
+				if ( elm.value.length > 0) {
+					//XSS対策
+					var sanitizeName = sanitizeXSS(elm.value);
+					myHandleName = sanitizeName;
+				} else {
+					myHandleName = "名無し";
+				}
+				closeModalbox();
+				
+	
+				if (bkupHN != myHandleName) {
+					// クライアント固有のデータを作成する
+					var now = new Date();
+					var year = now.getYear(); // 年
+					if(year < 2000) { year += 1900; }
+					var month = now.getMonth() + 1; // 月
+					var day = now.getDate(); // 日
+					var hour = now.getHours(); // 時
+					var min = now.getMinutes(); // 分
+					var sec = now.getSeconds(); // 秒
+					myUniqueKey=""+year+month+day+hour+min+sec;
+					
+					//チャットサーバーへ接続
+					conectChatServer();
+				}
+			}
+			
+			/**
+			 * チャットサーバーへ接続
+			 */
+			function conectChatServer(){
+				connectSocketServer("www.チャットサーバーURL",49153);
+			}
+
+			/**
+			 * カラーピッカーの設定
+			 */
+			$(document).ready(function() {
+    			$('#demo').hide();
+    			$('#picker').farbtastic('#color');
+ 			});
+
+			// closeイベントをキャッチする
+			window.nativeWindow.addEventListener(air.Event.CLOSING, onClosingEvent);
+			
+			/**
+			 * クローズ時のイベント（退出メッセージの送信）
+			 */
+			function onClosingEvent(){
+				if ( myHandleName == "") return;
+				var msg = myHandleName + "は退出されました。";
+				sendSocketMessage(msg);
+			}
+			
+			/**
+			 * body　をドロップのターゲットにする
+			 * @param {Object} event
+			 */
+			function doDragEnter(event) {
+				event.preventDefault();				
+			}
+			/**
+			 * ドラッグオーバー時のデフォルト処理を無効にすることで、body をドロップターゲットにする
+			 * @param {Object} event
+			 */
+			function doDragOver(event){
+				event.preventDefault();
+			}
+			/**
+			 * dragleave時のデフォルト処理を無効にすることで、body をドロップターゲットにする
+			 * @param {Object} event
+			 */
+			function doDragLeave(event){
+				event.preventDefault();
+			}
+
+			/**
+			 * ドロップ時の処理
+			 * @param {Object} event
+			 */
+			function doDrop( event ) {
+				var fileList = event.dataTransfer.getData("application/x-vnd.adobe.air.file-list");
+				if ( fileList.length <= 0 ) return;
+				if ( fileList.length > 4 ) {
+					alert("画像は同時に４つまでにして下さい。");
+					return;
+				}
+				
+				for ( var cnt = 0;cnt < fileList.length; cnt++ ) {
+					var filename = fileList[cnt].url;
+					//画像以外は送信付加
+					if ( !doUploadChack(filename) ) {
+						alert("画像だけにして下さい。");
+						return;
+					}
+					var unique = myUniqueKey + myMsgNum + cnt;
+					upload(filename,unique);
+				}
+			}
+
+			/**
+			 * アップロードするかのチェック
+			 * @param {Object} filename　ファイル名
+			 */			
+			function doUploadChack(filename){
+				var idx = filename.indexOf(".");
+				if ( idx < 0 ) return false;
+				var type = filename.substring(idx+1);
+				type = type.toUpperCase();
+				if ( type == "JPEG" || type == "JPG" || type == "PNG" ||
+					 type == "GIF" || type == "BMP" || type == "TIF" || type == "TIFF") {
+					 	return true;
+				}
+				return false;
+			}
+
+			/**
+			 * アップロード
+			 * 日本語対策
+			 * 　・Apacheは日本語ファイルの参照うまくいかないので、送信時：クライアント固有のデータIDを送信し
+			 * 　　その後、クライアント固有のデータIDにて、ServletへGETで接続し、XMLデータを受信する
+			 * 　・サーバーでは、アップロード時、ファイル名を独自のルールで作成する。
+			 * 　　その後、クライアント固有のデータIDにて、ServletへGETで接続したら、XMLデータを返す
+			 * @param filepath ファイルパス
+			 * @param dateID データ固有のID
+			 */
+			function upload(filepath,dateID) {
+				// ファイルオフじぇくと生成
+				var fileObject = new air.File(filepath);
+				
+				// 各種イベント登録
+				fileObject.addEventListener(air.Event.COMPLETE, completeUploadHandler);
+				fileObject.addEventListener(air.IOErrorEvent.IO_ERROR,ioErrorHandler);
+				fileObject.addEventListener(air.ProgressEvent.PROGRESS, progressHandler);
+				
+				// リクエスト登録 
+    	        var url = "http://www.Upload用サーバーURL/FileUploader/Uploader?id="+dateID;
+				// 日本語対策で、名前とデータを関連つけておく
+				myImgMap[fileObject.name] = dateID;
+	            var request = new air.URLRequest(url);
+        	    request.method = air.URLRequestMethod.POST;
+				fileObject.upload(request);
+	        }
+
+			/**
+			 * 送信完了時のイベントメソッド
+			 * @param {Object} event
+			 */
+			function completeUploadHandler(event) 
+			{ 
+			    air.trace("...complete..."); 
+				var filename = event.target.name;
+				var dataID = myImgMap[filename];
+				// リクエスト登録 
+    	        var url = "http://www.Upload用サーバーURL/FileUploader/Uploader?id="+dataID;
+				
+				// エンコード
+				var uri = encodeURI(url);
+	            var request = new air.URLRequest(uri);
+        	    request.method = air.URLRequestMethod.GET;
+				var loader = new air.URLLoader();
+				loader.addEventListener(air.Event.COMPLETE,completeGetHandler);
+				loader.load(request);
+				
+
+			}
+
+			/**
+			 * ファイルダウンロード用のGetハンドラー
+			 * @param {Object} event
+			 */
+			function completeGetHandler(event) {
+				//XMlデータ受信				
+				var xmldata = event.target.data;
+				// ダウンロード用のパス(URL)を取得する
+				var dlkey="<download>";
+				var sttidx = xmldata.indexOf(dlkey);
+				var endidx = xmldata.indexOf("</download>");
+				var url = xmldata.substring(sttidx+dlkey.length,endidx);
+				myMsgNum++;
+				var wkmsg = "<div style='color:"+myColor+ "' class='msg0'>"+myMsgNum + ":" +myHandleName+">";
+				var msg = "<img src='"+url+"'/></div>";
+				//ソケット用メッセージの送信
+				sendSocketMessage(wkmsg+msg);
+			}
+			
+			/**
+			 * 送信失敗時
+			 * @param {Object} event
+			 */
+			function ioErrorHandler(event){
+			    air.trace("...ioError..."); 
+			}
+			/**
+			 * プログレスハンドラー
+			 * @param {Object} event
+			 */
+			function progressHandler(event) {
+            	air.trace("bytesLoaded=" + event.bytesLoaded + "; bytesTotal=" + event.bytesTotal);
+	        }
+        </script>
+	</head>
+
+
+    <body bgcolor="black" text="white" onload="init()" 
+	      ondragenter="doDragEnter(event)"
+		  ondragover="doDragOver(event)"
+		  ondragleave="doDragLeave(event)"
+		  ondrop="doDrop(event)">
+	<!-- チャット画面 -->
+	<button onclick="dispModalbox()">オプション</button>
+    	<div id="chat">
+    		<div class="log">
+    			<table border="2" width="515" height="400">
+    				<tr>
+    					<td valign="top"><div id="str"></div></td>
+    				</tr>
+   			 	</table>
+			</div>
+			<input id="msg" type="text" size="50" onkeypress="return inputKeyPress(event.keyCode);"/> 
+    	</div>
+
+	<!-- 以下、初期画面の登録画面 -->
+	<div id="overlay">
+	<div id="modalbox">
+		<br>
+		ハンドルネームの登録　<input id="handleName" type="text" size="20" />
+		
+		<!-- カラーピッカー -->		
+		<div id="demo" style="color: red; font-size: 1.4em">jQuery.js is not present. You must install jQuery in this folder for the demo to work.</div>
+		<form action="" style="width: 400px;">
+  			<div class="form-item"><label for="color">文字の色</label><input type="text" id="color" name="color" value="#ffffff" /></div><div id="picker"></div>
+		</form>
+		<div style="position:relative ; top:-50px; left:-30px;" align=right><button onclick="registHN()">登録</button></div>
+	</div>
+	
+
+	</body>
+</html>
