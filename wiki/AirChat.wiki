@@ -1,10 +1,9 @@
 #summary One-sentence summary of this page.
 
 = Introduction =
-
 Airで作成したチャットクライアント
-Server側はservlet
+サーバーサイドはservlet
 
 = Details =
-* チャットできます
-* ドラッグアンドドロップにて４つほど同時に写真をUPできます
+ * チャットできます
+ * ドラッグアンドドロップにて４つほど同時に写真をUPできます
