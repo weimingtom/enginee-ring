@@ -6,30 +6,5 @@ Airで作成したチャットクライアント
 Server側はservlet
 
 = Details =
-
-
-メモを記述しておきます。
-
-●ChatServer(chat用ソケットサーバー)
-(server/ChatServer)
- * サービス開始時に、実行しておく。（ポート番号はClient とサーバー側で一致させる。今は 49153 をあけています。）
- * サーバー起動時に起動してください
-
-●UploadFileServlet(ファイルアップロード用サーバー)
-(server/UploadFileServlet)
- * tomcatにて動作させています。
-URL=http://www.サーバーURL/FileUploader
-
-(tomcatのserver.xml）
-<Context path="/FileUploader" reloadable="true" docBase="C:\workspace\UploadFileServlet" workDir="C:\workspace\UploadFileServlet\work" />
-
-
-●AirChat(clientプログラム)
-(client/AirChat)
- * ９８行目：connectSocketServer("www.チャットサーバーURL",49153);
-ポート番号は、１．のポート番号とあわせる
-
- * ２０３行目：var url = "http://www.Upload用サーバーURL/FileUploader/Uploader?id="+dateID;
-Upload用サーバーURLを変更する
- * ２２１行目：var url = "http://www.Upload用サーバーURL/FileUploader/Uploader?id="+dataID;
-Upload用サーバーURLを変更する
+* チャットできます
+* ドラッグアンドドロップにて４つほど同時に写真をUPできます
