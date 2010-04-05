@@ -1,0 +1,19 @@
+<html>
+<head>
+<title>FileUpload</title>
+<meta http-equiv="Content-Type" 
+      content="text/html; charset=UTF-8">
+</head>
+
+<body>
+せいこうです。
+<!-- (1)<FORM>タグにmultipart/form-dataを指定 -->
+<form method="POST" 
+      enctype="multipart/form-data" 
+      action="/Uploader">
+  <!-- (2)ファイルを選択する<input type="file">タグを指定 -->
+  <input type="file" name="filefd" />
+  <input type="submit" value="送信" />
+</form>
+</body>
+</html>
