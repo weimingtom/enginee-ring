@@ -1,3 +1,7 @@
 GoogleAppEngineでwikiを作ってみました。
 
 wiki in a jar の真似ですけどね。
+
+http://wiki-dozan.ziro.co.jp/
+
+http://code.google.com/p/wiki-dozan/
