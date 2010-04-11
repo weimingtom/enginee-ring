@@ -1,6 +1,9 @@
-GoogleAppEngineでwikiを作ってみました。
+#summary GoogleAppEngine上で動作するwikiです。
+#labels Slim3,GoogleAppEngine
 
-wiki in a jar の真似ですけどね。
+[GoogleAppEngine]でwikiを作ってみました。
+[wiki in a jar]の真似ですけどね。
+[Slim3]がフレームワークです。
 
 http://wiki-dozan.ziro.co.jp/
 
