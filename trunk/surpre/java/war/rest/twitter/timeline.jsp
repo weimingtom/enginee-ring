@@ -3,11 +3,8 @@
 <resultList>
 <c:forEach var="e" items="${timelineList}">
   <status userId="${e.userId}" date="${e.date}" image="${e.image}">
-  <text>
-  <![CDATA[
-  ${e.text}
-  ]]>
-  </text>
+  <text><![CDATA[${e.text}]]></text>
+  <orgText><![CDATA[${e.orgText}]]></orgText>
   </status>
 </c:forEach>
 </resultList>
