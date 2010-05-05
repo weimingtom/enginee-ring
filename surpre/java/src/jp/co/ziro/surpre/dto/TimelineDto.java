@@ -17,6 +17,7 @@ public class TimelineDto {
     private String date;
     private String image;
     private String text;
+    private String orgText;
     
     /**
      * 生成する
@@ -33,7 +34,9 @@ public class TimelineDto {
         cal.add(Calendar.HOUR_OF_DAY, 9);
         date = sdf.format(cal.getTime());
         image =  status.getUser().getProfileImageURL().toExternalForm();
-        text = HtmlUtil.autoLink(status.getText());
+
+        orgText = status.getText();
+        text    = HtmlUtil.autoLink(status.getText());
     }
     /**
      * 生成する
@@ -54,6 +57,8 @@ public class TimelineDto {
            date = ""; 
         }
         image =  user.getProfileImageURL().toExternalForm();
+        
+        orgText = user.getStatusText();
         text = HtmlUtil.autoLink(user.getStatusText());
     }
     public TimelineDto(Tweet tweet) {
@@ -71,6 +76,8 @@ public class TimelineDto {
            date = ""; 
         }
         image = tweet.getProfileImageUrl();
+        
+        orgText = tweet.getText();
         text = HtmlUtil.autoLink(tweet.getText());
     }
     public String getUserName() {
@@ -112,4 +119,10 @@ public class TimelineDto {
     public String getUserId() {
         return userId;
     }
+	public void setOrgText(String orgText) {
+		this.orgText = orgText;
+	}
+	public String getOrgText() {
+		return orgText;
+	}
 }
