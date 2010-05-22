@@ -1,5 +1,5 @@
-#携帯Twitterクライアント
+#summary 携帯Twitterクライアント
 
-= ついーとカフェ
+= ついーとカフェ =
 
 http://m.tweetcafe.net/
